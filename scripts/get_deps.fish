@@ -1,1 +1,0 @@
-../dependencies/get_deps.fish

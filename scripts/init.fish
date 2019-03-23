@@ -1,15 +1,26 @@
 #!/bin/fish
 
 set BASE_DIR (dirname (readlink -m (status filename)))/..
-set DEP_DIR "$BASE_DIR/dependencies"
 set SCRIPTS_DIR (dirname (readlink -m (status filename)))
+set DEP_DIR_DEFAULT "$BASE_DIR/dependencies"
 
-mkdir -p "$DEP_DIR"
+set get_deps_version "6b5b4e36940e67c9ff05e75e027000fbc1462e90"
 
-wget \
-	--output-document="$DEP_DIR/get_deps.fish" \
-	https://github.com/EsGeh/git_deps/raw/44374d316ca88c1aac42ce935d8cb39151be2dae/get_deps.fish
-chmod u+x "$DEP_DIR/get_deps.fish"
+mkdir -p "$DEP_DIR_DEFAULT"
 
+echo "downloading get_deps..."
+set repo_uri "https://github.com/EsGeh/git_deps/raw/$get_deps_version/get_deps.fish"
+begin
+	wget \
+		--output-document="$DEP_DIR_DEFAULT/get_deps.fish" \
+		$repo_uri 2>/dev/null
+	and chmod u+x "$DEP_DIR_DEFAULT/get_deps.fish"
+end
+or begin
+	echo "ERROR while downloading '$repo_uri'"
+	exit 1
+end
 
-eval "$SCRIPTS_DIR/get_deps.fish"
+and begin
+	eval "$DEP_DIR_DEFAULT/get_deps.fish" $argv
+end
